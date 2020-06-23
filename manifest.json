@@ -1,0 +1,32 @@
+{
+    "manifest_version": 2,
+    "name": "Test Robot",
+    "version": "0.0.1",
+    "description": "网页测试自动化",
+    "browser_action": {
+        "default_popup": "html/popup.html",
+        "default_icon": {
+            "128": "images/alien.png"
+        }
+    },
+    "background": {
+        "scripts": ["js/background.js"]
+    },
+    "icons": {
+        "128": "images/alien.png"
+    },
+    "content_scripts": [{
+        "matches": ["<all_urls>"],
+        "js": ["js/content_script.js"]
+    }],
+    "permissions": [
+        "storage",
+        "<all_urls>",
+        "tabs"
+    ],
+    "options_ui": {
+        "page": "html/options.html",
+        "chrome_style": true
+    },
+    "web_accessible_resources": ["html/options.html", "js/inject.js", "js/jquery.min.js", "js/materialize.min.js", "js/options.js"]
+}

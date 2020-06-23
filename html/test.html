@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>test_robot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css">
+    <style type="text/css">
+        /* all */
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        body {
+            min-width: 300px;
+            min-height: 300px;
+        }
+
+        .row {
+            margin: 0px;
+        }
+
+        .btn-flat {
+            border: solid 1px #ccc;
+        }
+
+        /* dashboard */
+
+        /* process */
+        .process_item_detail {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" style="display: block;">
+        <!-- 主页 -->
+        <div id="dashboard">
+            <div class="row">
+                <div class="input-field col s12">
+                    <select id="projects">
+                    </select>
+                    <label>选择/切换项目</label>
+                </div>
+            </div>
+            <div class="row">
+                <ul class="collapsible" data-collapsible="accordion" id="modules">
+                </ul>
+            </div>
+            <div class="row">
+                <a class="waves-effect waves-teal btn-flat">全部运行</a>
+                <a class="waves-effect waves-teal btn-flat">运行机制</a>
+            </div>
+        </div>
+
+        <!-- 用例详情 -->
+        <div id="process" style="display: none;">
+            <ul class="collapsible" data-collapsible="accordion" id="events">
+                <li>
+                    <div class="collapsible-header">
+                        点击新增
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="row process_item_detail">
+                            <div class="col s6">筛选器：#id</div>
+                            <div class="col s6">第n个：5</div>
+                        </div>
+                        <div class="row process_item_detail">
+                            <div class="col s6">操作：click</div>
+                            <div class="col s6">延时：10</div>
+                        </div>
+                        <div class="row process_item_detail">
+                            <div class="col s12">操赋值：你好</div>
+                        </div>
+                        <div class="row process_item_detail" style="margin-bottom: 10px;">
+                            <a href="# ">
+                                <div class="col process_test_run">运行</div>
+                            </a>
+                            <a href="#">
+                                <div class="col process_edit">编辑</div>
+                            </a>
+                            <a href="#">
+                                <div class="col process_move">上移</div>
+                            </a>
+                            <a href="#">
+                                <div class="col process_copy">复制</div>
+                            </a>
+                            <a href="#">
+                                <div class="col process_del">删除</div>
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="collapsible-header">
+                        输入你好
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="row process_item_detail">
+                            <div class="col s6">筛选器：#id</div>
+                            <div class="col s6">第n个：5</div>
+                        </div>
+                        <div class="row process_item_detail">
+                            <div class="col s6">操作：value</div>
+                            <div class="col s6">延时：10</div>
+                        </div>
+                        <div class="row process_item_detail">
+                            <div class="col s12">操赋值：你好</div>
+                        </div>
+                        <div class="row process_item_detail" style="margin-bottom: 10px;">
+                            <a href="# ">
+                                <div class="col pc" id="process_test_run">运行</div>
+                            </a>
+                            <a href="#">
+                                <div class="col pc" id="process_edit">编辑</div>
+                            </a>
+                            <a href="#">
+                                <div class="col pc" id="process_move">上移</div>
+                            </a>
+                            <a href="#">
+                                <div class="col pc" id="process_copy">复制</div>
+                            </a>
+                            <a href="# ">
+                                <div class="col pc" id="process_del">删除</div>
+                            </a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div class="row">
+                <a class="waves-effect waves-teal btn-flat" id="new_event">新增</a>
+                <a class="waves-effect waves-teal btn-flat back_dashbaord">返回</a>
+            </div>
+        </div>
+
+        <!-- 元素筛选器 -->
+        <div id="selector" class="row" style="display: none;">
+            <div class="input-field col s12">
+                <input placeholder="query selector" id="queryselect" type="text" />
+                <label for="queryselect">页面元素筛选器</label>
+            </div>
+            <div class="col s12">
+                <div class="collection">
+                    <a href="#!" class="collection-item select_item">div.class & 0</a>
+                    <a href="#!" class="collection-item select_item">div.class & 1</a>
+                    <a href="#!" class="collection-item select_item">div.class & 2</a>
+                    <a href="#!" class="collection-item select_item">div.class & 3</a>
+                </div>
+            </div>
+            <div class="col s12">
+                <a class="waves-effect waves-teal btn-flat back_process">返回</a>
+            </div>
+        </div>
+
+        <!-- 事件定义 -->
+        <div id="event" class="row" style="display: none;">
+            <div class="col s12" style="margin-top: 15px; margin-bottom: 15px;">
+                <a href="#">已选元素：#id & 1</a>
+            </div>
+            <div class="input-field col s12">
+                <select>
+                    <option value="1" selected>click 点击</option>
+                    <option value="2">value 设值</option>
+                    <option value="3">refresh 刷新</option>
+                </select>
+                <label>选择操作</label>
+            </div>
+            <div class="input-field col s12">
+                <input placeholder="query selector" id="set_value" type="text" />
+                <label for="set_value">设值</label>
+            </div>
+            <div class="input-field col s12">
+                <input id="num_wait" type="number" class="wait" value="1">
+                <label for="num_wait">与上一步间隔时间(秒)</label>
+            </div>
+            <div class="col s12">
+                <a class="waves-effect waves-teal btn-flat back_process">提交</a>
+                <a class="waves-effect waves-teal btn-flat back_process">返回</a>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
+    <script type="text/javascript">
+        const STORE_KEY = {
+    project: "test_robot_projects",
+    module: "test_robot_modules",
+    case: "test_robot_cases",
+    event: "test_robot_events"
+};
+
+function render_projects(projects) {
+    $("#projects")
+        .html(projects
+            .map((item,index) =>
+                `<option value="${item.id}" selected=${index===0}>${item.name}</option>`)
+            .join(""))
+        .material_select();
+}
+
+
+$(document).ready(function () {
+    // chrome.tabs.create({
+    //     url: "/html/options.html"
+    // });
+    // chrome.tabs.query({
+    //     active: true,
+    //     currentWindow: true
+    // }, function (tabs) {
+    //     chrome.tabs.sendMessage(tabs[0].id, {
+    //         type: "init_test_module"
+    //     }, function (msg) {
+    //         window.close();
+    //     })
+    // });
+
+    const SIM_DATA = {
+        "test_robot_projects": [
+            {
+                "id": 1,
+                "name": "测试项目",
+            },
+            {
+                "id": 2,
+                "name": "测试项目2",
+            }
+        ],
+        "test_robot_modules": [
+            {
+                "id": 1,
+                "project_id": 1,
+                "name": "用户模块"
+            },
+            {
+                "id": 2,
+                "project_id": 1,
+                "name": "文件夹模块"
+            }
+        ],
+        "test_robot_cases": [
+            {
+                "id": 1,
+                "module_id": 1,
+                "name": "用例1"
+            },
+            {
+                "id": 2,
+                "module_id": 1,
+                "name": "用例2"
+            },
+            {
+                "id": 3,
+                "module_id": 1,
+                "name": "用例3"
+            },
+            {
+                "id": 4,
+                "module_id": 2,
+                "name": "用例asd"
+            }
+        ],
+        "test_robot_events": [
+            {
+                "id": 1,
+                "case_id": 1,
+                "name": "点击按钮",
+                "selector": "#id",
+                "select_n": 6,
+                "opera": "click",
+                "delay": 5,
+                "value": "",
+            },
+            {
+                "id": 2,
+                "case_id": 1,
+                "name": "设值",
+                "selector": "#input",
+                "select_n": 2,
+                "opera": "value",
+                "delay": 5,
+                "value": "你好",
+            }
+        ]
+    };
+
+    for(let i in SIM_DATA) {
+        parent.window.set_test_robot(i, SIM_DATA[i]);
+    }
+
+    let this_project_id;
+
+    parent.window.get_test_robot(STORE_KEY.project, data => {
+        if(data.length > 0) {
+            this_project_id = data[0].id;
+            render_projects(data);
+            parent.window.get_project_module_case(this_project_id, data => {
+                $("#modules").html(data.modules.map(module => {
+                    let cases = data.cases.filter(cs => cs.module_id === module.id);
+                    return `<li>
+                        <div class="collapsible-header">
+                            <span class="new badge run_module" data-badge-caption="运行"></span>
+                            <span class="new badge" data-badge-caption="用例">${cases.length}</span>
+                            ${module.name}
+                        </div>
+                        <div class="collapsible-body">
+                            <table class="bordered centered">
+                                <tbody>
+                                    ${cases.map(cs => `<tr>
+                                        <td><a href="#" class="case" id="case${cs.id}">${cs.name}</a></td>
+                                        <td><a href="#">运行</a></td>
+                                    </tr>`).join("")}
+                                </tbody>
+                            </table>
+                        </div>
+                    </li>`;
+                }).join(""));
+            })
+        }
+    });
+
+    $("select").material_select();
+
+    $("#modules").on("click", ".case", function() {
+        let case_id = parseInt(this.id.slice(4));
+        parent.window.get_test_robot(STORE_KEY.event, data => {
+            $("#events").html(data.filter(ev => ev.case_id === case_id)
+                .map(ev => `<li>
+                    <div class="collapsible-header" id="event${ev.id}">
+                        ${ev.name}
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="row process_item_detail">
+                            <div class="col s6">筛选器：${ev.selector}</div>
+                            <div class="col s6">第n个：${ev.select_n}</div>
+                        </div>
+                        <div class="row process_item_detail">
+                            <div class="col s6">操作：${ev.opera}</div>
+                            <div class="col s6">延时：${ev.delay}</div>
+                        </div>
+                        <div class="row process_item_detail">
+                            <div class="col s12">操赋值：${ev.value}</div>
+                        </div>
+                        <div class="row process_item_detail" style="margin-bottom: 10px;">
+                            <a href="# ">
+                                <div class="col process_test_run">运行</div>
+                            </a>
+                            <a href="#">
+                                <div class="col process_edit">编辑</div>
+                            </a>
+                            <a href="#">
+                                <div class="col process_del">删除</div>
+                            </a>
+                        </div>
+                    </div>
+                </li>`).join(""));
+        });
+        $("#dashboard").hide();
+        $("#process").show();
+    });
+
+    $("#new_event").click(function () {
+        $("#process").hide();
+        $("#selector").show();
+    });
+
+    $(".back_dashbaord").click(function () {
+        $("#process").hide();
+        $("#selector").hide();
+        $("#event").hide();
+        $("#dashboard").show();
+    });
+
+    $(".select_item").click(function () {
+        $("#selector").hide();
+        $("#event").show();
+    });
+
+    $(".back_process").click(function () {
+        $("#selector").hide();
+        $("#event").hide();
+        $("#dashboard").hide();
+        $("#process").show();
+    });
+
+    $(".run_module").click(function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    $("#projects").change(function() {
+        console.log($(this).val())
+    })
+})
+    </script>
+</body>
+
+</html>
