@@ -31,85 +31,103 @@
 </head>
 
 <body>
-    <div class="container" style="display: block;">
-        <!-- 主页 -->
-        <div id="dashboard">
-            <div class="row">
-                <div class="input-field col s12">
-                    <select id="projects">
-                    </select>
-                    <label>选择/切换项目</label>
-                </div>
-            </div>
-            <div class="row">
-                <ul class="collapsible" data-collapsible="accordion" id="modules">
-                </ul>
-            </div>
-            <div class="row">
-                <a class="waves-effect waves-teal btn-flat">全部运行</a>
-                <a class="waves-effect waves-teal btn-flat">运行机制</a>
-            </div>
-        </div>
-
-        <!-- 用例详情 -->
-        <div id="process" style="display: none;">
-            <ul class="collapsible" data-collapsible="accordion" id="events">
-            </ul>
-            <div class="row">
-                <a class="waves-effect waves-teal btn-flat" id="new_event">新增</a>
-                <a class="waves-effect waves-teal btn-flat back_dashbaord">返回</a>
-            </div>
-        </div>
-
-        <!-- 元素筛选器 -->
-        <div id="selector" class="row" style="display: none;">
+<div class="container" style="display: block;">
+    <!-- 主页 -->
+    <div id="dashboard">
+        <div class="row">
             <div class="input-field col s12">
-                <input placeholder="query selector" id="queryselect" type="text" />
-                <label for="queryselect">页面元素筛选器</label>
-            </div>
-            <div class="col s12">
-                <div class="collection">
-                    <a href="#!" class="collection-item select_item">div.class & 0</a>
-                    <a href="#!" class="collection-item select_item">div.class & 1</a>
-                    <a href="#!" class="collection-item select_item">div.class & 2</a>
-                    <a href="#!" class="collection-item select_item">div.class & 3</a>
-                </div>
-            </div>
-            <div class="col s12">
-                <a class="waves-effect waves-teal btn-flat back_process">返回</a>
-            </div>
-        </div>
-
-        <!-- 事件定义 -->
-        <div id="event" class="row" style="display: none;">
-            <div class="col s12" style="margin-top: 15px; margin-bottom: 15px;">
-                <a href="#">已选元素：#id & 1</a>
-            </div>
-            <div class="input-field col s12">
-                <select>
-                    <option value="1" selected>click 点击</option>
-                    <option value="2">value 设值</option>
-                    <option value="3">refresh 刷新</option>
+                <select id="projects">
                 </select>
-                <label>选择操作</label>
+                <label>选择/切换项目</label>
             </div>
-            <div class="input-field col s12">
-                <input placeholder="query selector" id="set_value" type="text" />
-                <label for="set_value">设值</label>
-            </div>
-            <div class="input-field col s12">
-                <input id="num_wait" type="number" class="wait" value="1">
-                <label for="num_wait">与上一步间隔时间(秒)</label>
-            </div>
-            <div class="col s12">
-                <a class="waves-effect waves-teal btn-flat back_process">提交</a>
-                <a class="waves-effect waves-teal btn-flat back_process">返回</a>
-            </div>
+        </div>
+        <div class="row">
+            <ul class="collapsible" data-collapsible="expandable" id="modules">
+            </ul>
+        </div>
+        <div class="row">
+            <a class="waves-effect waves-teal btn-flat">全部运行</a>
+            <a class="waves-effect waves-teal btn-flat">运行机制</a>
         </div>
     </div>
-    <script type="text/javascript" src="../js/jquery.min.js "></script>
-    <script type="text/javascript" src="../js/materialize.min.js "></script>
-    <script type="text/javascript" src="../js/options.js"></script>
+
+    <!-- 用例详情 -->
+    <div id="process" style="display: none;">
+        <ul class="collapsible" data-collapsible="expandable" id="events">
+        </ul>
+        <div class="row">
+            <a class="waves-effect waves-teal btn-flat" href="#modal1">新增</a>
+            <a class="waves-effect waves-teal btn-flat back_dashbaord">返回</a>
+        </div>
+    </div>
+
+    <!-- 元素筛选器 -->
+    <div id="selector" class="row" style="display: none;">
+        <div class="input-field col s12">
+            <input id="queryselect" type="text"/>
+            <label for="queryselect">页面元素筛选器</label>
+        </div>
+        <div class="col s12">
+            <div class="collection" id="selector_dom_item">
+            </div>
+        </div>
+        <div class="col s12">
+            <a class="waves-effect waves-teal btn-flat back_process">返回</a>
+            <a class="waves-effect waves-teal btn-flat direct_select">页面圈选</a>
+        </div>
+    </div>
+
+    <!-- 事件定义 -->
+    <div id="event" class="row" style="display: none;">
+        <div class="col s12" style="margin-top: 15px; margin-bottom: 15px;">
+            <a href="#" id="selected_dom">已选元素：#id & 1</a>
+        </div>
+        <div class="input-field col s12">
+            <select id="select_opera">
+                <option value="click" selected>click 点击</option>
+                <option value="value">value 设值</option>
+                <option value="refresh">refresh 刷新</option>
+                <option value="check">check 检查</option>
+            </select>
+            <label>选择操作</label>
+        </div>
+        <div class="input-field col s12" id="set_check_input" style="display: none">
+            <select id="select_check_opera">
+                <option value="in" selected>存在该值节点</option>
+                <option value="not in">不存在该值节点</option>
+            </select>
+            <label>选择检查操作</label>
+        </div>
+        <div class="input-field col s12" id="set_value_input" style="display: none">
+            <input id="set_value" type="text"/>
+            <label for="set_value">设值</label>
+        </div>
+        <div class="input-field col s12">
+            <input id="num_wait" type="number" class="wait" value="1">
+            <label for="num_wait">与上一步间隔时间(秒)</label>
+        </div>
+        <div class="col s12">
+            <a class="waves-effect waves-teal btn-flat back_process" id="submit_event">提交</a>
+            <a class="waves-effect waves-teal btn-flat back_process">返回</a>
+        </div>
+    </div>
+
+    <!-- 新增事件 -->
+    <div id="modal1" class="modal">
+        <div class="modal-content">
+            <div class="input-field col s6">
+                <input id="new_event_name" type="text">
+                <label for="new_event_name">新事件名</label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class=" modal-action modal-close waves-effect waves-green btn-flat" id="new_event">确定</a>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="../js/jquery.min.js "></script>
+<script type="text/javascript" src="../js/materialize.min.js "></script>
+<script type="text/javascript" src="../js/options.js"></script>
 </body>
 
 </html>

@@ -17,7 +17,13 @@
  *         {
  *             "id": "用例id",
  *             "module_id": "模块id",
- *             "name": "用例名"
+ *             "name": "用例名",
+ *             "args": [
+ *                  {
+ *                      "参数1": "值1",
+ *                      "参数2": "值2"
+ *                  }
+ *              ]
  *         }
  *     ],
  *     "events": [
@@ -44,32 +50,34 @@ const STORE_KEY = {
 
 // 获取数据存储
 function get_test_robot(key, callback) {
-    chrome.storage.local.get(key, function(res) {
+    chrome.storage.local.get(key, function (res) {
         if (callback) callback(res[key])
     })
 }
 
 // 设置数据存储
 function set_test_robot(key, value, callback) {
-    chrome.storage.local.set({[key]: value}, function() {
+    chrome.storage.local.set({
+        [key]: value
+    }, function () {
         if (callback) callback()
     })
 }
 
 function get_project_module_case(project_id, callback) {
-    chrome.storage.local.get([STORE_KEY.module, STORE_KEY.case], function(res) {
+    chrome.storage.local.get([STORE_KEY.module, STORE_KEY.case], function (res) {
         let data = {};
         data.modules = res[STORE_KEY.module].filter(item => item.project_id === project_id);
         let module_ids = data.modules.map(m => m.id);
         data.cases = res[STORE_KEY.case].filter(item => module_ids.indexOf(item.module_id) !== -1);
-        if(callback) callback(data);
+        if (callback) callback(data);
     });
 }
 
 function render_projects(projects) {
     $("#projects")
         .html(projects
-            .map((item,index) =>
+            .map((item, index) =>
                 `<option value="${item.id}" selected=${index===0}>${item.name}</option>`)
             .join(""))
         .material_select();
@@ -80,20 +88,22 @@ $(document).ready(function () {
     // chrome.tabs.create({
     //     url: "/html/options.html"
     // });
-    chrome.tabs.query({
-        active: true,
-        currentWindow: true
-    }, function (tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-            type: "init_test_module"
-        }, function (msg) {
-            window.close();
-        })
+    // chrome.tabs.query({
+    //     active: true,
+    //     currentWindow: true
+    // }, function (tabs) {
+    //     chrome.tabs.sendMessage(tabs[0].id, {
+    //         type: "init_test_module"
+    //     }, function (msg) {
+    //         window.close();
+    //     })
+    // });
+    chrome.tabs.create({
+        url: chrome.extension.getURL("html/manage.html")
     });
 
     const SIM_DATA = {
-        "test_robot_projects": [
-            {
+        "test_robot_projects": [{
                 "id": 1,
                 "name": "测试项目",
             },
@@ -102,8 +112,7 @@ $(document).ready(function () {
                 "name": "测试项目2",
             }
         ],
-        "test_robot_modules": [
-            {
+        "test_robot_modules": [{
                 "id": 1,
                 "project_id": 1,
                 "name": "用户模块"
@@ -114,30 +123,64 @@ $(document).ready(function () {
                 "name": "文件夹模块"
             }
         ],
-        "test_robot_cases": [
-            {
+        "test_robot_cases": [{
                 "id": 1,
                 "module_id": 1,
-                "name": "用例1"
+                "name": "用例1",
+                "args_key": ["key1", "key2"],
+                "args": [
+                    {
+                        "key1": "value",
+                        "key2": "value2"
+                    },
+                    {
+                        "key1": "valu2",
+                        "key2": "value1"
+                    }
+                ],
             },
             {
                 "id": 2,
                 "module_id": 1,
-                "name": "用例2"
+                "name": "用例2",
+                "args_key": ["key1", "key2"],
+                "args": [
+                    {
+                        "key1": "value",
+                        "key2": "value2"
+                    },
+                    {
+                        "key1": "valu2",
+                        "key2": "value1"
+                    }
+                ],
             },
             {
                 "id": 3,
                 "module_id": 1,
-                "name": "用例3"
+                "name": "用例3",
+                "args_key": ["key1", "key2"],
+                "args": [
+                    {
+                        "key1": "value",
+                        "key2": "value2"
+                    },
+                    {
+                        "key1": "valu2",
+                        "key2": "value1"
+                    }
+                ],
             },
             {
                 "id": 4,
                 "module_id": 2,
-                "name": "用例asd"
+                "name": "用例asd",
+                "args_key": [],
+                "args": [
+                ],
             }
         ],
-        "test_robot_events": [
-            {
+        "test_robot_events": [{
                 "id": 1,
                 "case_id": 1,
                 "name": "设值",
@@ -160,15 +203,16 @@ $(document).ready(function () {
         ]
     };
 
-    for(let i in SIM_DATA) {
-        set_test_robot(i, SIM_DATA[i]);
-    }
+    // for(let i in SIM_DATA) {
+    //     set_test_robot(i, SIM_DATA[i]);
+    // }
 
     let this_project_id;
 
     get_test_robot(STORE_KEY.project, data => {
-        if(data.length > 0) {
+        if (data.length > 0) {
             this_project_id = data[0].id;
+            console.log(data)
             render_projects(data);
             get_project_module_case(this_project_id, data => {
                 $("#modules").html(data.modules.map(module => {
@@ -197,7 +241,7 @@ $(document).ready(function () {
 
     $("select").material_select();
 
-    $("#modules").on("click", ".case", function() {
+    $("#modules").on("click", ".case", function () {
         let case_id = parseInt(this.id.slice(4));
         get_test_robot(STORE_KEY.event, data => {
             $("#events").html(data.filter(ev => ev.case_id === case_id)
@@ -264,7 +308,7 @@ $(document).ready(function () {
         e.stopPropagation();
     });
 
-    $("#projects").change(function() {
+    $("#projects").change(function () {
         console.log($(this).val())
     })
 })

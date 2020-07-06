@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>这是一个管理页</title>
+    <link rel="stylesheet" href="../css/materialize.min.css">
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        .btn-flat {
+            border: solid 1px #ccc;
+        }
+
+        nav {
+            position: fixed;
+            top: 0px;
+        }
+
+        .project-manage {
+            margin-top: 64px;
+        }
+    </style>
+</head>
+
+<body>
+<div>
+    <nav>
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo left" style="margin-left: 10px;">管理台</a>
+            <ul id="nav-mobile" class="left hide-on-med-and-down" style="margin-left: 120px;">
+                <li><a href="#">项目管理</a></li>
+                <li><a href="#">全局配置</a></li>
+            </ul>
+        </div>
+    </nav>
+</div>
+<div class="project-manage">
+    <div class="row">
+        <div class="col s6">
+            <h5>项目</h5>
+            <table>
+                <thead>
+                <tr>
+                    <th>项目</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody id="project-table-body">
+                </tbody>
+            </table>
+        </div>
+        <div class="col s6">
+            <h5>模块</h5>
+            <table>
+                <thead>
+                <tr>
+                    <th>模块</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody id="module-table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="divider"></div>
+    <div class="row">
+        <div class="col s6">
+            <h5>用例</h5>
+            <table>
+                <thead>
+                <tr>
+                    <th>用例</th>
+                    <th>参数列表</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody id="case-table-body">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col s6">
+            <h5>用例参数</h5>
+            <table>
+                <thead id="args-table-head">
+                </thead>
+                <tbody id="args-table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="divider"></div>
+    <div class="row">
+        <div class="col s12">
+            <h5>事件</h5>
+            <table>
+                <thead>
+                <tr>
+                    <th>事件</th>
+                    <th>选择器</th>
+                    <th>第N</th>
+                    <th>事件操作</th>
+                    <th>延时</th>
+                    <th>设值</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+
+                <tbody id="event-table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <a class="waves-effect waves-teal btn-flat" href="#edit-project-modal" id="add_project">添加项目</a>
+    </div>
+
+    <div id="edit-project-modal" class="modal">
+        <div class="modal-content">
+            <div class="input-field col s6">
+                <input id="project-name-input" type="text">
+                <label for="project-name-input">项目名</label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-action modal-close waves-effect waves-green btn-flat" id="submit-edit-project">确认</a>
+        </div>
+    </div>
+
+    <div id="edit-module-modal" class="modal">
+        <div class="modal-content">
+            <div class="input-field col s6">
+                <input id="module-name-input" type="text">
+                <label for="module-name-input">模块名</label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-action modal-close waves-effect waves-green btn-flat" id="submit-edit-module">确认</a>
+        </div>
+    </div>
+
+    <div id="edit-case-modal" class="modal">
+        <div class="modal-content">
+            <div class="input-field col s6">
+                <input id="case-name-input" type="text">
+                <label for="case-name-input">用例名</label>
+            </div>
+            <div class="input-field col s6">
+                <input id="case-args-input" type="text">
+                <label for="case-args-input">用例参数, 逗号分隔</label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-action modal-close waves-effect waves-green btn-flat" id="submit-edit-case">确认</a>
+        </div>
+    </div>
+
+    <div id="edit-event-modal" class="modal">
+        <div class="modal-content">
+            <div class="input-field col s6">
+                <input id="event-name-input" type="text">
+                <label for="event-name-input">事件名</label>
+            </div>
+            <div class="input-field col s6">
+                <input id="event-selector-input" type="text">
+                <label for="event-selector-input">选择器</label>
+            </div>
+            <div class="input-field col s6">
+                <input id="event-n-input" type="text">
+                <label for="event-n-input">第N</label>
+            </div>
+            <div class="input-field col s6">
+                <input id="event-opera-input" type="text">
+                <label for="event-opera-input">事件操作</label>
+            </div>
+            <div class="input-field col s6">
+                <input id="event-wait-input" type="text">
+                <label for="event-wait-input">延时</label>
+            </div>
+            <div class="input-field col s6">
+                <input id="event-value-input" type="text">
+                <label for="event-value-input">设值</label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-action modal-close waves-effect waves-green btn-flat" id="submit-edit-event">确认</a>
+        </div>
+    </div>
+
+    <div id="edit-args-modal" class="modal">
+        <div class="modal-content" id="edit-args-modal-content">
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-action modal-close waves-effect waves-green btn-flat" id="submit-edit-args">确认</a>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="../js/jquery.min.js "></script>
+<script type="text/javascript" src="../js/materialize.min.js"></script>
+<script type="text/javascript" src="../js/manage.js"></script>
+</body>
+
+</html>
