@@ -124,6 +124,20 @@ function get_main_doc() {
     return document.getElementById("main_iframe").contentWindow.document;
 }
 
+function dom_to_selector(dom) {
+
+}
+
+function start_dom_selector(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    console.log(e.target);
+}
+
+function dom_selector_event() {
+    document.body.addEventListener("click", start_dom_selector, true)
+}
+
 init_test_module();
 
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
