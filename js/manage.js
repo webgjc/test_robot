@@ -23,8 +23,19 @@ function set_test_robot(key, value, callback) {
 }
 
 
+function init() {
+    set_test_robot(STORE_KEY.project, []);
+    set_test_robot(STORE_KEY.module, []);
+    set_test_robot(STORE_KEY.event, []);
+    set_test_robot(STORE_KEY.case, []);
+}
+
+
 function render_project() {
     get_test_robot(STORE_KEY.project, data => {
+        if(data === undefined) {
+            init();
+        }
         $("#project-table-body").html(data.map(p => `
             <tr id="project-${p.id}">
                 <td><a href="#" class="project-detail">${p.name}</a></td>

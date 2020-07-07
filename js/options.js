@@ -41,6 +41,27 @@ function send_msg(msg, callback) {
     })
 }
 
+
+async function args_run(process, args) {
+    if (args.length === 0) {
+        await control_run(process);
+    } else {
+        for (let i = 0; i < args.length; i++) {
+            let process_bak = JSON.parse(JSON.stringify(process));
+            process_bak.forEach(pb => {
+                if (pb.value && pb.value.startsWith("${") && pb.value.endsWith("}")) {
+                    pb.value = args[i][pb.value.slice(2, -1)];
+                }
+            });
+            if(i !== 0){
+                await sleep(process_bak.map(pb => pb.wait).reduce((a,b) => parseFloat(a)+parseFloat(b)));
+            }
+            control_run(process_bak);
+        }
+    }
+}
+
+
 // 运行流程事务
 async function control_run(process) {
     chrome.tabs.query({
@@ -250,8 +271,9 @@ $(document).ready(function () {
     }).on("click", ".run_case", function () {
         this_case_id = parseInt(this.id.slice(7));
         callback_type = "run_events";
-        get_test_robot(STORE_KEY.event, data => {
-            control_run(data.filter(ev => ev.case_id === this_case_id));
+        get_test_robot_batch([STORE_KEY.case, STORE_KEY.event], data => {
+            let tmp = data[STORE_KEY.case].filter(c => c.id === this_case_id)[0];
+            args_run(data[STORE_KEY.event].filter(ev => ev.case_id === this_case_id), tmp.args);
         });
     });
 
@@ -274,30 +296,42 @@ $(document).ready(function () {
         edit_event_id = event_id;
         get_test_robot(STORE_KEY.event, data => {
             let tmp = data.filter(d => d.id === event_id)[0];
-            $("#process").hide();
-            $("#event").show();
-            $("#selected_dom").text(`已选元素：${tmp.tag}&${tmp.n}`).attr("data", `${tmp.tag}&${tmp.n}`);
-            $("#select_opera").val(tmp.opera);
-            $("#set_value").val(tmp.value);
-            $('#select_opera').material_select();
+            $("#new_event_name").val(tmp.name);
+            $("#modal1").modal("open");
             Materialize.updateTextFields();
-            if (["value", "check"].indexOf(tmp.opera) !== -1) {
-                $("#set_value_input").show();
-                if (tmp.opera === "check") {
-                    $("#set_check_input").show();
-                }
-            } else {
-                $("#set_value_input").hide();
-                $("#select_check_opera").hide();
-            }
         })
     });
 
-    $("#new_event").click(function () {
-        new_event_name = $("#new_event_name").val();
+    $("#add_event").click(function () {
         edit_event_id = undefined;
-        $("#process").hide();
-        $("#selector").show();
+    });
+
+    $("#new_event").click(function () {
+        if (edit_event_id === undefined) {
+            new_event_name = $("#new_event_name").val();
+            $("#process").hide();
+            $("#selector").show();
+        } else {
+            get_test_robot(STORE_KEY.event, data => {
+                let tmp = data.filter(d => d.id === edit_event_id)[0];
+                $("#process").hide();
+                $("#event").show();
+                $("#selected_dom").text(`已选元素：${tmp.tag}&${tmp.n}`).attr("data", `${tmp.tag}&${tmp.n}`);
+                $("#select_opera").val(tmp.opera);
+                $("#set_value").val(tmp.value);
+                $('#select_opera').material_select();
+                Materialize.updateTextFields();
+                if (["value", "check"].indexOf(tmp.opera) !== -1) {
+                    $("#set_value_input").show();
+                    if (tmp.opera === "check") {
+                        $("#set_check_input").show();
+                    }
+                } else {
+                    $("#set_value_input").hide();
+                    $("#select_check_opera").hide();
+                }
+            })
+        }
     });
 
     $(".back_dashbaord").click(function () {
@@ -353,8 +387,8 @@ $(document).ready(function () {
                 $("#set_check_input").show();
             }
         } else {
+            $("#set_check_input").hide();
             $("#set_value_input").hide();
-            $("#select_check_opera").hide();
         }
     });
 
@@ -387,7 +421,7 @@ $(document).ready(function () {
 
         });
     });
-    
+
     $(".direct_select").click(function () {
         send_msg({
             type: "start_direct_select"
