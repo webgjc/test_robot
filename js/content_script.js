@@ -108,11 +108,11 @@ function myrobot_scroll_position(window, dom) {
 
 
 function check_dom_value(dom, opera, value) {
-    if(dom.innerText === value) {
+    if (dom.innerText === value) {
         return opera === "in";
-    }else{
-        for(let i = 0; i<dom.children.length;i++) {
-            if(check_dom_value(dom.children[i], opera, value)){
+    } else {
+        for (let i = 0; i < dom.children.length; i++) {
+            if (check_dom_value(dom.children[i], opera, value)) {
                 return opera === "in";
             }
         }
@@ -124,7 +124,34 @@ function get_main_doc() {
     return document.getElementById("main_iframe").contentWindow.document;
 }
 
-function dom_to_selector(dom) {
+function dom_to_selector(doc, dom) {
+    let names = [];
+    do {
+        let index = 0;
+        if (dom.id) {
+            names.unshift(`${dom.tagName}#${dom.id}`);
+            break;
+        } else {
+            if (dom.classList.length > 0) {
+                let tmp = `${dom.tagName}.${dom.classList.join(".")}`;
+                let nodes = doc.querySelectorAll(tmp);
+                for (let i = 0; i < nodes.length; i++) {
+                    if(nodes[i] === dom) {
+                        names.unshift(tmp)
+                    }
+                }
+            }
+        }
+        let cursorElement = dom;
+        while (cursorElement !== null) {
+            ++index;
+            cursorElement = cursorElement.previousElementSibling;
+        }
+        names.unshift(dom.tagName + ":nth-child(" + index + ")");
+        dom = dom.parentElement;
+    } while (dom !== null);
+
+    return names.join(" > ");
 
 }
 
@@ -182,7 +209,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
             type: msg.type,
             result: check_dom_value(dom, msg.check, msg.value)
         })
-    } else if(msg.type === "start_direct_select") {
+    } else if (msg.type === "start_direct_select") {
         let doc = get_main_doc();
     }
 });
