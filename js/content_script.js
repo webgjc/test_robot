@@ -170,7 +170,7 @@ function start_dom_selector(e) {
 }
 
 
-// init_test_module();
+init_test_module();
 
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     if (msg.type === "init_test_module") {
