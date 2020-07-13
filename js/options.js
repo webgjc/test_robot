@@ -53,10 +53,11 @@ async function args_run(process, args) {
                     pb.value = args[i][pb.value.slice(2, -1)];
                 }
             });
-            if(i !== 0){
-                await sleep(process_bak.map(pb => pb.wait).reduce((a,b) => parseFloat(a)+parseFloat(b)));
+            if (i !== 0) {
+                await sleep(process_bak.map(pb => pb.wait)
+                    .reduce((a, b) => parseFloat(a) + parseFloat(b)));
             }
-            control_run(process_bak);
+            await control_run(process_bak);
         }
     }
 }
@@ -109,11 +110,47 @@ async function control_run(process) {
 }
 
 
-function render_projects(projects) {
+async function module_run(module_id) {
+    await get_test_robot_batch([STORE_KEY.module, STORE_KEY.case, STORE_KEY.event], async function (data) {
+        let module = data[STORE_KEY.module].filter(m => m.id === module_id)[0];
+        let cases = data[STORE_KEY.case].filter(c => c.module_id === module.id);
+        for (let i = 0; i < cases.length; i++) {
+            let process = data[STORE_KEY.event].filter(e => e.case_id === cases[i].id);
+            if (i > 0) {
+                let last_process = data[STORE_KEY.event].filter(e => e.case_id === cases[i - 1].id);
+                await sleep(last_process.map(pb => pb.wait)
+                    .reduce((a, b) => parseFloat(a) + parseFloat(b)));
+            }
+            await args_run(process, cases[i].args);
+        }
+    })
+}
+
+
+async function project_run(project_id) {
+    await get_test_robot_batch([STORE_KEY.project, STORE_KEY.module, STORE_KEY.case, STORE_KEY.event], async function (data) {
+        let project = data[STORE_KEY.project].filter(p => p.id === project_id)[0];
+        let modules = data[STORE_KEY.module].filter(m => m.project_id === project.id);
+        for (let i = 0; i < modules.length; i++) {
+            if (i > 0) {
+                let cases = data[STORE_KEY.case].filter(c => c.module_id === modules[i - 1].id);
+                let sleep_time = 0;
+                for (let i = 0; i < cases.length; i++) {
+                    sleep_time += data[STORE_KEY.event].filter(e => e.case_id === cases[i].id).map(e => e.wait)
+                        .reduce((a, b) => parseFloat(a) + parseFloat(b)) * (cases[i].args.length > 0 ? cases[i].args.length : 1);
+                }
+                await sleep(sleep_time);
+            }
+            await module_run(modules[i].id);
+        }
+    })
+}
+
+function render_projects(projects, select_id) {
     $("#projects")
         .html(projects
-            .map((item, index) =>
-                `<option value="${item.id}" selected=${index === 0}>${item.name}</option>`)
+            .map(p =>
+                `<option value="${p.id}" selected=${p.id === select_id}>${p.name}</option>`)
             .join(""))
         .material_select();
 }
@@ -148,12 +185,14 @@ function set_test_robot(key, value, callback) {
     })
 }
 
-function render_dashboard() {
+function render_dashboard(project_id, callback) {
+    let project;
     get_test_robot_batch([STORE_KEY.project, STORE_KEY.module, STORE_KEY.case], data => {
         let ps = data[STORE_KEY.project];
         if (ps.length > 0) {
-            let this_project_id = ps[0].id;
-            render_projects(ps);
+            let this_project_id = project_id === undefined ? ps[0].id : project_id;
+            project = ps.filter(p => p.id === this_project_id)[0];
+            if (project_id === undefined) render_projects(ps, this_project_id);
             let modules = data[STORE_KEY.module].filter(m => m.project_id === this_project_id);
             let module_ids = modules.map(m => m.id);
             let mdata = {
@@ -180,8 +219,9 @@ function render_dashboard() {
                     </div>
                 </li>`;
             }).join(""));
+            if (callback) callback(project);
         }
-    })
+    });
 }
 
 function render_events(case_id) {
@@ -220,7 +260,6 @@ function render_events(case_id) {
 }
 
 function render_select_dom_list(selector, nums) {
-    console.log(nums);
     $("#selector_dom_item").html(nums
         .map(i => `<a href="#" class="collection-item select_item">${selector}&${i}</a>`)
         .join(""));
@@ -232,7 +271,16 @@ $(document).ready(function () {
     let callback_type = "render_dashboard";
     let new_event_name = "test";
     let edit_event_id = undefined;
-    render_dashboard();
+
+    let run_project_id;
+    let run_project_name;
+    let run_module_name;
+    let run_case_name;
+
+    render_dashboard(undefined, function (project) {
+        run_project_id = project.id;
+        run_project_name = project.name;
+    });
 
     $('.modal').modal();
     $("select").material_select();
@@ -266,13 +314,18 @@ $(document).ready(function () {
         $("#dashboard").hide();
         $("#process").show();
     }).on("click", ".run_module", function (e) {
+        let module_id = parseInt(this.id.slice(6));
+        module_run(module_id);
         e.preventDefault();
         e.stopPropagation();
     }).on("click", ".run_case", function () {
         this_case_id = parseInt(this.id.slice(7));
         callback_type = "run_events";
-        get_test_robot_batch([STORE_KEY.case, STORE_KEY.event], data => {
+        get_test_robot_batch([STORE_KEY.module, STORE_KEY.case, STORE_KEY.event], data => {
             let tmp = data[STORE_KEY.case].filter(c => c.id === this_case_id)[0];
+            run_case_name = tmp.name;
+            run_module_name = data[STORE_KEY.module].filter(m => m.id === tmp.module_id)[0].name;
+            console.log(run_project_name, run_module_name, run_case_name);
             args_run(data[STORE_KEY.event].filter(ev => ev.case_id === this_case_id), tmp.args);
         });
     });
@@ -349,7 +402,10 @@ $(document).ready(function () {
     });
 
     $("#projects").change(function () {
-        console.log($(this).val())
+        render_dashboard(parseInt($(this).val()), function (project) {
+            run_project_name = project.name;
+            run_project_id = project.id;
+        });
     });
 
     $("#queryselect").change(function () {
@@ -378,6 +434,11 @@ $(document).ready(function () {
         $("#selected_dom").attr("data", $(this).text());
         $("#selector").hide();
         $("#event").show();
+    });
+
+    $("#selected_dom").click(function () {
+        $("#selector").show();
+        $("#event").hide();
     });
 
     $("#select_opera").change(function () {
@@ -426,6 +487,17 @@ $(document).ready(function () {
         send_msg({
             type: "start_direct_select"
         })
-    })
+    });
 
+    $("#run-all").click(function () {
+        project_run(run_project_id);
+    });
+
+});
+
+
+chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+    if (msg.type === "SELECT_DOM") {
+        render_select_dom_list(msg.tag, [msg.n]);
+    }
 });

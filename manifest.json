@@ -28,5 +28,6 @@
         "page": "html/options.html",
         "chrome_style": true
     },
-    "web_accessible_resources": ["html/options.html", "js/inject.js", "js/jquery.min.js", "js/materialize.min.js", "js/options.js"]
+    "web_accessible_resources": ["html/options.html", "js/inject.js"],
+    "devtools_page": "html/devtools.html"
 }
