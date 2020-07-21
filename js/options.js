@@ -41,9 +41,49 @@ function send_msg(msg, callback) {
     })
 }
 
+Date.prototype.Format = function (fmt) {
+    var o = {
+        "M+": this.getMonth() + 1, //月份
+        "d+": this.getDate(), //日
+        "H+": this.getHours(), //小时
+        "m+": this.getMinutes(), //分
+        "s+": this.getSeconds(), //秒
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+        "S": this.getMilliseconds() //毫秒
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+};
 
-async function args_run(process, args) {
+let data = {};
+
+function record_case_run_result(record_data) {
+    data.start_time = new Date().Format("yyyy-MM-dd HH:mm:ss");
+    data.content = {
+        project: {
+            name: record_data.project,
+            module: [{
+                name: record_data.module,
+                case: []
+            }]
+        },
+    }
+}
+
+let RecordCase = {};
+
+async function args_run(process, args, record_data) {
+    RecordCase = null;
+    record_case_run_result(record_data);
     if (args.length === 0) {
+        RecordCase = {
+            name: record_data.case,
+            args: null,
+            api: [],
+            event: [],
+        };
         await control_run(process);
     } else {
         for (let i = 0; i < args.length; i++) {
@@ -57,6 +97,12 @@ async function args_run(process, args) {
                 await sleep(process_bak.map(pb => pb.wait)
                     .reduce((a, b) => parseFloat(a) + parseFloat(b)));
             }
+            RecordCase = {
+                name: record_data.case,
+                args: args[i],
+                api: [],
+                event: [],
+            };
             await control_run(process_bak);
         }
     }
@@ -72,6 +118,10 @@ async function control_run(process) {
         for (let i = 0; i < process.length; i++) {
             await sleep(process[i].wait);
             if (process[i].opera === "click" || process[i].opera === "value") {
+                RecordCase.event.push({
+                    name: process[i].name,
+                    detail: process[i],
+                });
                 chrome.tabs.sendMessage(tabs[0].id, {
                     type: "get_position",
                     tag: process[i].tag,
@@ -91,6 +141,10 @@ async function control_run(process) {
                     });
                 })
             } else if (process[i].opera === "refresh") {
+                RecordCase.event.push({
+                    name: process[i].name,
+                    detail: process[i],
+                });
                 send_msg({
                     type: "refresh_window"
                 })
@@ -102,10 +156,18 @@ async function control_run(process) {
                     check: process[i].check,
                     value: process[i].value
                 }, function (msg) {
-                    alert(msg.result);
+                    RecordCase.event.push({
+                        name: process[i].name,
+                        detail: process[i],
+                        result: msg.result
+                    });
                 })
             }
         }
+        await (() => {data.end_time = new Date().Format("yyyy-MM-dd HH:mm:ss")})();
+        data.content.project.module[0].case.push(JSON.parse(JSON.stringify(RecordCase)));
+        console.log(data);
+        // await console.log(JSON.stringify(RecordCase));
     });
 }
 
@@ -325,8 +387,8 @@ $(document).ready(function () {
             let tmp = data[STORE_KEY.case].filter(c => c.id === this_case_id)[0];
             run_case_name = tmp.name;
             run_module_name = data[STORE_KEY.module].filter(m => m.id === tmp.module_id)[0].name;
-            console.log(run_project_name, run_module_name, run_case_name);
-            args_run(data[STORE_KEY.event].filter(ev => ev.case_id === this_case_id), tmp.args);
+            args_run(data[STORE_KEY.event].filter(ev => ev.case_id === this_case_id), tmp.args,
+                {project: run_project_name, module: run_module_name, case: run_case_name});
         });
     });
 
@@ -499,5 +561,8 @@ $(document).ready(function () {
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     if (msg.type === "SELECT_DOM") {
         render_select_dom_list(msg.tag, [msg.n]);
+    } else if (msg.type === "API_EVENT") {
+        // console.log(msg.content);
+        RecordCase.api.push(msg.content);
     }
 });

@@ -41,8 +41,15 @@
  *     ],
  *     "results": [
  *         {
- *             "project": [
- *                 {
+ *             "start_time": "2020-07-13 10:00:11",
+ *             "end_time": "2020-07-13 10:00:12",
+ *             "statistics": {
+ *                  "run_case": 100,
+ *                  "success_case": 50,
+ *                  "error_case": 50
+ *             },
+ *             "content": {
+ *                 "project": {
  *                     "name": "项目名",
  *                     "module": [
  *                         {
@@ -50,17 +57,23 @@
  *                             "case": [
  *                                 {
  *                                     "name": "用例名",
+ *                                     "args": {
+ *                                         "key": "value",
+ *                                         "key1": "value1"
+ *                                     }
  *                                     "api": [
  *                                         {
  *                                             "method": "GET",
  *                                             "url": "https://asd",
- *                                             "body": "{}"
+ *                                             "body": "{}",
+ *                                             "http_code": 500,
  *                                             "result": "{}"
  *                                         }
  *                                     ]
  *                                     "event": [
  *                                         {
  *                                             "name": "事件名",
+ *                                             "detail": {}
  *                                             "result": "结果"
  *                                         }
  *                                     ]
@@ -69,7 +82,7 @@
  *                         }
  *                     ]
  *                 }
- *             ]
+ *             }
  *         }
  *     ]
  * }
@@ -345,4 +358,4 @@ $(document).ready(function () {
     $("#projects").change(function () {
         console.log($(this).val())
     })
-})
+});

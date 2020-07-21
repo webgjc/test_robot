@@ -1,27 +1,38 @@
-chrome.devtools.panels.create("TestRobot", "../images/alien.png", "../html/panel.html", function (panel) {
-    console.log('自定义面板创建成功！'); // 注意这个log一般看不到
-});
+// chrome.devtools.panels.create("TestRobot", "../images/alien.png", "../html/panel.html", function (panel) {
+//     console.log('自定义面板创建成功！'); // 注意这个log一般看不到
+// });
 
 
 chrome.devtools.network.onRequestFinished.addListener(
     function (request) {
-        request.getContent(data => {
-            chrome.devtools.inspectedWindow.eval(`console.log("${request.request.url}", ${data})`);
-        })
+        if(request._resourceType === "xhr") {
+            request.getContent(data => {
+                chrome.runtime.sendMessage({
+                    type: "API_EVENT",
+                    content: {
+                        url: request.request.url,
+                        method: request.request.method,
+                        data: data
+                    }
+                });
+            })
+        }
     });
 
-let backgroundPageConnection = chrome.runtime.connect({
-    name: "devtools-page"
-});
-
-backgroundPageConnection.onMessage.addListener(function (message) {
-    // Handle responses from the background page, if any
-});
-
-// Relay the tab ID to the background page
-chrome.runtime.sendMessage({
-    tabId: chrome.devtools.inspectedWindow.tabId
-});
+// chrome.devtools.inspectedWindow.eval(`console.log("${request.request.url}", ${data})`);
+// let backgroundPageConnection = chrome.runtime.connect({
+//     name: "devtools-page"
+// });
+//
+// backgroundPageConnection.onMessage.addListener(function (message) {
+//     // Handle responses from the background page, if any
+// });
+//
+// // Relay the tab ID to the background page
+// chrome.runtime.sendMessage({
+//     type: "OPEN_DEVTOOL",
+//     tabId: chrome.devtools.inspectedWindow.tabId
+// });
 
 
 // chrome.devtools.panels.elements.createSidebarPane("Images", function(sidebar)
